@@ -16,6 +16,9 @@ const playerOneRef = database.ref('/players/one');
 const playerTwoRef = database.ref('/players/two');
 const playerOneChoiceRef = database.ref('/players/one/choice');
 const playerTwoChoiceRef = database.ref('/players/two/choice');
+const messagesRef = database.ref('/messages');
+const playerOneMessagesRef = database.ref('/messages/one');
+const playerTwoMessagesRef = database.ref('/messages/two');
 
 function resetGame() {
   setTimeout(function() {
@@ -28,7 +31,7 @@ function resetGame() {
 }
 
 function playerDisconnect() {
-  database.ref().update({turn: null})
+  database.ref().update({turn: null});
   $('#player-one').removeClass('is-turn');
   $('#player-two').removeClass('is-turn');
   $('#user h4').empty();
@@ -99,6 +102,7 @@ playersRef.on('value', function(snapshot) {
     players.one ? $('#player-one .player-name').text(players.one.name) : $('#player-one .player-name').text('Waiting for Player');
     players.two ? $('#player-two .player-name').text(players.two.name) : $('#player-two .player-name').text('Waiting for Player');
     players.one.choice && players.two.choice ? chooseRPS(players.one.choice, players.two.choice) : false; 
+    players.one && players.two ? $('#chat-btn').prop('disabled', false) : false;
   }
 });
 
@@ -198,3 +202,32 @@ function displayChoice() {
   });
 }
 
+// chat functionality
+$('#chat-btn').on('click', addMsg)
+
+messagesRef.on('child_added', function(snapshot) {
+  const p = $('<p>');
+  $('#chat .chat-body').append(p);
+  p.text(snapshot.val().name + ': ' + snapshot.val().msg)
+});
+
+messagesRef.on('value', function(snapshot) {
+  if(typeof snapshot.val() !== 'object')  {
+    const p = $('<p>');
+    $('#chat .chat-body').append(p);
+    p.text(snapshot.val());
+  }
+});
+
+function addMsg(e) {
+  e.preventDefault();
+  const msg = $('#chat-input').val().trim();
+  const name = $('#user').data('name');
+  if($('#user').data('player') === 1) {
+    messagesRef.push({name, msg})
+    messagesRef.onDisconnect().set(name + ' has disconnected.'); 
+  } else if($('#user').data('player') === 2) {
+    messagesRef.push({name, msg});
+    messagesRef.onDisconnect().set(name + ' has disconnected.');
+  }
+} 

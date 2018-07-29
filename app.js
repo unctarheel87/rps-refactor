@@ -27,6 +27,14 @@ function resetGame() {
   }, 5000);  
 }
 
+function playerDisconnect() {
+  database.ref().update({turn: null})
+  $('#player-one').removeClass('is-turn');
+  $('#player-two').removeClass('is-turn');
+  $('#user h4').empty();
+  $('.body').empty();
+}
+
 const turnRef = database.ref('/turn')
 turnRef.onDisconnect().remove();
 
@@ -86,9 +94,11 @@ playersRef.on('value', function(snapshot) {
     return false;
   } else {
     const players = snapshot.val();
+    players.one && !players.two ? playerDisconnect() : false;
+    players.two && !players.one ? playerDisconnect() : false; 
     players.one ? $('#player-one .player-name').text(players.one.name) : $('#player-one .player-name').text('Waiting for Player');
     players.two ? $('#player-two .player-name').text(players.two.name) : $('#player-two .player-name').text('Waiting for Player');
-    players.one.choice && players.two.choice ? chooseRPS(players.one.choice, players.two.choice) : false;
+    players.one.choice && players.two.choice ? chooseRPS(players.one.choice, players.two.choice) : false; 
   }
 });
 

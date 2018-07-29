@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css?family=Play');
+
+body {
+  background: url('gaming-pattern.png');
+  font-family: 'Play', sans-serif;
+}
+
+#main {
+  width: 960px;
+  margin: 0 auto;
+  text-align: center;
+  background: url('gaming-pattern.png');
+}
+
+.title {
+  margin-bottom: 50px;
+  background: rgba(255, 165, 0, 0.4);
+  padding: 20px;
+}
+
+#user {
+  margin: 30px;
+}
+
+#user h4 {
+  margin: 20px;
+}
+
+.title span {
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: 100;
+}
+
+i {
+  margin: 10px;
+  opacity: 0.5;
+  transition: 0.5s ease-out;
+}
+
+i:hover {
+  font-size: 60px;
+  transition: 0.5s ease-out;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.body {
+  margin-bottom: 30px;
+  padding: 0;
+}
+
+.selections {
+  height: 50px;
+}
+
+#player {
+  width: 300px;
+}
+
+#players {
+  display: flex;
+}
+
+#player-one, #player-two {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: 10px; 
+}
+
+#outcome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yellow {
+  background: rgba(255, 165, 0, 0.25);
+  border: rgba(255, 165, 0, 0.25);
+}
+
+.wins-losses {
+  display: flex;
+  justify-content: space-around;
+}
+
+form {
+  margin: 0 auto;
+}
+
+.card {
+  flex: 1;
+  margin: 20px;
+  height: 250px;
+}
+
+.is-turn {
+  border: 3px solid rgba(238, 130, 238, 0.7);
+  background: rgb(238, 130, 238, 0.3);
+}
+
+#chat {
+  position: relative;
+  width: 500px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+#chat-form input, #chat-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-right: none;
+  border-left: none;
+}
+
+#chat-form input:focus {
+  box-shadow: none;
+  outline: none;
+  border-color: #ced4da;
+}
+
+.chat-body {
+  padding: 5px;
+}
+
+.chat-body p {
+  margin: 0;
+  padding: 0;
+}

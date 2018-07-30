@@ -16,30 +16,20 @@ const playerOneRef = database.ref('/players/one');
 const playerTwoRef = database.ref('/players/two');
 const playerOneChoiceRef = database.ref('/players/one/choice');
 const playerTwoChoiceRef = database.ref('/players/two/choice');
+const playerOneWinseRef = database.ref('/players/one/wins');
+const playerOneLossesRef = database.ref('/players/one/losses');
+const playerTwoWinseRef = database.ref('/players/two/wins');
+const playerTwoLossesRef = database.ref('/players/two/losses');
 const messagesRef = database.ref('/messages');
-const playerOneMessagesRef = database.ref('/messages/one');
-const playerTwoMessagesRef = database.ref('/messages/two');
-
-function resetGame() {
-  setTimeout(function() {
-    playerOneChoiceRef.remove();
-    playerTwoChoiceRef.remove();
-    $('#outcome').removeClass('yellow').empty();
-    $('.body h2').empty();
-    database.ref().update({turn: 1});
-  }, 5000);  
-}
-
-function playerDisconnect() {
-  database.ref().update({turn: null});
-  $('#player-one').removeClass('is-turn');
-  $('#player-two').removeClass('is-turn');
-  $('#user h4').empty();
-  $('.body').empty();
-}
 
 const turnRef = database.ref('/turn')
 turnRef.onDisconnect().remove();
+
+//game wins/losses
+let playerOneWins = 0;
+let playerOneLosses = 0;
+let playerTwoWins = 0;
+let playerTwoLosses = 0;
 
 //player login
 $('#add-player').on('click', function(e) {
@@ -91,18 +81,43 @@ $('#add-player').on('click', function(e) {
   });
 });
 
+//handle player states
 playersRef.on('value', function(snapshot) {
   if(!snapshot.val()) {
     $('.player-name').text('Waiting for Player');
     return false;
   } else {
     const players = snapshot.val();
+    //display wins
+    if(players.one) {
+      $('#player-one .wins').text("Wins: " + players.one.wins);
+      $('#player-one .losses').text("Losses: " + players.one.losses);
+    }
+    if(players.two) {
+      $('#player-two .wins').text("Wins: " + players.two.wins);
+      $('#player-two .losses').text("Losses: " + players.two.losses);
+    }
     players.one && !players.two ? playerDisconnect() : false;
     players.two && !players.one ? playerDisconnect() : false; 
     players.one ? $('#player-one .player-name').text(players.one.name) : $('#player-one .player-name').text('Waiting for Player');
     players.two ? $('#player-two .player-name').text(players.two.name) : $('#player-two .player-name').text('Waiting for Player');
-    players.one.choice && players.two.choice ? chooseRPS(players.one.choice, players.two.choice) : false; 
     players.one && players.two ? $('#chat-btn').prop('disabled', false) : false;
+  }
+});
+
+//run game function once second player has chosen
+playerTwoChoiceRef.on('value', function(snapshot) {
+  if(!snapshot.val()) {
+    return false;
+  } else {
+    const playerTwoChoice = snapshot.val();
+    playerOneChoiceRef.once('value', function(snapshot) {
+      if(!snapshot.val()) {
+        return false;
+      } else {
+        chooseRPS(snapshot.val(), playerTwoChoice);
+      }
+    });
   }
 });
 
@@ -155,7 +170,7 @@ $(document).on('click', '#player-two .hand', function() {
   playerTwoRef.update({choice: playerTwoChoice})
 });
 
-
+//game functions
 function addRpsIcons(node) {
   node.addClass('selections').html(`
   <i data-name="rock" class="fas fa-hand-rock fa-3x hand"></i>
@@ -177,16 +192,24 @@ function chooseRPS(playerOneChoice, playerTwoChoice) {
     const h1 = $('<h1>')
     $('#outcome').addClass('yellow').append(h1);
     h1.text(`Player 1 Wins`).hide().fadeIn();
+    playerOneWins++
+    playerTwoLosses++
+    playerOneRef.update({wins: playerOneWins});
+    playerTwoRef.update({losses: playerTwoLosses});
     displayChoice();
     resetGame();
   } else {
     const h1 = $('<h1>')
     $('#outcome').addClass('yellow').append(h1);
     h1.text(`Player 2 Wins`).hide().fadeIn();
+    playerTwoWins++
+    playerOneLosses++
+    playerOneRef.update({losses: playerOneLosses});
+    playerTwoRef.update({wins: playerTwoWins});
     displayChoice();
     resetGame();
   }
-}
+};
 
 function displayChoice() {
   playersRef.on('value', function(snapshot) {
@@ -200,7 +223,25 @@ function displayChoice() {
       $('#player-two .body').html(`<h2>${playerTwoChoice}</h2>`).hide().fadeIn();
     }
   });
-}
+};
+
+function resetGame() {
+  setTimeout(function() {
+    playerOneChoiceRef.remove();
+    playerTwoChoiceRef.remove();
+    $('#outcome').removeClass('yellow').empty();
+    $('.body h2').empty();
+    database.ref().update({turn: 1});
+  }, 5000);  
+};
+
+function playerDisconnect() {
+  database.ref().update({turn: null});
+  $('#player-one').removeClass('is-turn');
+  $('#player-two').removeClass('is-turn');
+  $('#user h4').empty();
+  $('.body').empty();
+};
 
 // chat functionality
 $('#chat-btn').on('click', addMsg)
@@ -230,4 +271,4 @@ function addMsg(e) {
     messagesRef.push({name, msg});
     messagesRef.onDisconnect().set(name + ' has disconnected.');
   }
-} 
+}; 

@@ -108,10 +108,8 @@ form {
 
 #chat-form input, #chat-btn {
   position: absolute;
-  bottom: 0;
+  bottom: -38px;
   right: 0;
-  border-right: none;
-  border-left: none;
 }
 
 #chat-form input:focus {
@@ -122,6 +120,7 @@ form {
 
 .chat-body {
   padding: 5px;
+  overflow: scroll;
 }
 
 .chat-body p {

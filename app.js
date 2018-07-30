@@ -85,6 +85,7 @@ $('#add-player').on('click', function(e) {
 playersRef.on('value', function(snapshot) {
   if(!snapshot.val()) {
     $('.player-name').text('Waiting for Player');
+    messagesRef.remove();
     return false;
   } else {
     const players = snapshot.val();

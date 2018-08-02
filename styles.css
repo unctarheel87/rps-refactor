@@ -104,6 +104,7 @@ form {
   width: 500px;
   margin: 0 auto;
   text-align: left;
+  margin-bottom: 60px;
 }
 
 #chat-form input, #chat-btn {
